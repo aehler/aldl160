@@ -39,7 +39,7 @@ var portlist = []string{
 
 func main() {
 
-	go serial.GenDataStream()
+	//go serial.GenDataStream()
 
 	a := app.New()
 	w := a.NewWindow("ALDL160")
