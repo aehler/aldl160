@@ -18,11 +18,11 @@ func StartDump() {
 	for {
 		select {
 		case <-fe:
-			datastr := ""
+			datastr := fmt.Sprintf("%d.%d", time.Now().Second(), time.Now().Nanosecond())
 			for _, val := range frame {
 				datastr = fmt.Sprintf("%s,%X", datastr, val)
 			}
-			file.Write([]byte(fmt.Sprintf("%s\r\n", datastr)))
+			file.Write([]byte(fmt.Sprintf("%s\r", datastr)))
 		case <-fstop:
 			return
 		}

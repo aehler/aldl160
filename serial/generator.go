@@ -53,12 +53,14 @@ func ReadDataStream(port string) {
 	//	go func() {
 	for {
 		buf := make([]byte, ReadBufferSize)
-		n, err := s.Read(buf)
+		_, err := s.Read(buf)
 		if err != nil {
 			log.Fatal("Cannot read port ", err)
 		}
 		datacounter++
-		ParseByte(buf[:n])
+		if string(buf[0]) == "0" || string(buf[0]) == "1" {
+			ParseByte(buf[0])
+		}
 	}
 
 	//	}()
@@ -79,7 +81,7 @@ func GenDataStream() {
 	}()
 
 	for {
-		file, err := os.Open("assets/a136_5v_vD_160to115200b.csv") // For read access.
+		file, err := os.Open("assets/LoggedData2.csv") // For read access.
 		if err != nil {
 			log.Fatal("Error opening data file", err)
 		}
@@ -88,14 +90,15 @@ func GenDataStream() {
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			testdata = append(testdata, scanner.Text()[0:1])
+			testdata = append(testdata, scanner.Text())
 		}
 
 		for _, d := range testdata {
-			_, err := s.Write([]byte(d))
+			_, err := s.Write([]byte(fmt.Sprintf("%s\r", d)))
 			if err != nil {
 				continue
 			}
+			time.Sleep(time.Microsecond * 16)
 		}
 		file.Close()
 	}

@@ -3,6 +3,7 @@ package serial
 import (
 	"aldl160/winlog"
 	"errors"
+	"fmt"
 )
 
 type Tc struct {
@@ -43,11 +44,11 @@ func SetFrameLenth(l uint8) {
 	frame = make([]uint8, l)
 }
 
-func ParseByte(s []byte) {
+func ParseByte(s byte) {
 	var bit *uint8
 	if bscounter < len(bitSequence) {
-		if pb != s[0] {
-			if string(pb) == "1" && string(s[0]) == "0" { //Transiting from 1 to 0 is a breakpoint
+		if pb != s {
+			if string(pb) == "1" && string(s) == "0" { //Transiting from 1 to 0 is a breakpoint
 				bscounter = 0
 				var err error
 				bit, err = approxBit(bitSequence[:len(bitSequence)-1])
@@ -86,10 +87,11 @@ func ParseByte(s []byte) {
 					frame[fc] = byte1
 					ByteReady <- Tc{fc, byte1}
 					fc++
+					winlog.Log(fmt.Sprintf("%d > %d\r\n", fc, byte1))
 				}
 			}
 			if fc == frameLength {
-				fe <- struct{}{}
+				//fe <- struct{}{}
 				fc = 0
 				frameSync = false
 			}
@@ -98,8 +100,8 @@ func ParseByte(s []byte) {
 			//}
 		}
 
-		pb = s[0]
-		bitSequence[bscounter] = s[0]
+		pb = s
+		bitSequence[bscounter] = s
 		bscounter++
 		return
 	}
@@ -107,7 +109,6 @@ func ParseByte(s []byte) {
 }
 
 func approxBit(bs []byte) (*uint8, error) {
-
 	if len(bs) < 19 {
 		return nil, errors.New("Datastream too short")
 	}
@@ -124,6 +125,7 @@ func approxBit(bs []byte) (*uint8, error) {
 			res = 1
 		}
 	}
+	fmt.Println(string(bs), " >> ", res)
 	return &res, nil
 }
 
