@@ -91,7 +91,7 @@ func ParseByte(s byte) {
 				}
 			}
 			if fc == frameLength {
-				//fe <- struct{}{}
+				fe <- struct{}{}
 				fc = 0
 				frameSync = false
 			}

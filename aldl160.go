@@ -14,7 +14,6 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"image/color"
 	"sort"
-	"strconv"
 	"time"
 )
 
@@ -64,19 +63,14 @@ func main() {
 
 	sform.Append("Start processing", container.New(layout.NewFormLayout(), btn1, btn2))
 
-	bufsize := widget.NewEntry()
+	tripFile := widget.NewEntry()
 
-	bfs := container.NewVBox(bufsize, widget.NewButton("Apply", func() {
-		if rbs, err := strconv.ParseInt(bufsize.Text, 10, 32); err != nil {
-			winlog.WriteStatus(err.Error())
-			return
-		} else {
-			winlog.Log(fmt.Sprintf("Set buffer size %s", bufsize.Text))
-			serial.ReadBufferSize = int(rbs)
-		}
+	bfs := container.NewVBox(tripFile, widget.NewButton("Apply", func() {
+		winlog.Log(fmt.Sprintf("Data from file %s", tripFile.Text))
+		aldlstruct.ReadTrip(tripFile.Text)
 	}))
 
-	sform.Append("Set read buffer size", bfs)
+	sform.Append("Parse recorded trip", bfs)
 
 	aldl, err := aldlstruct.NewALDL("a136")
 	if err != nil {
@@ -142,15 +136,30 @@ func main() {
 	form := &widget.Form{}
 	form.Append("Console", console)
 
+	grid2.Resize(fyne.Size{500, 500})
+
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Data", grid),
 		container.NewTabItem("Errors", grid2),
 		container.NewTabItem("Settings", container.NewVBox(sform)),
 		container.NewTabItem("Console", console),
 	)
-	statusBar := container.NewBorder(tabs, widget.NewLabelWithData(errMsg), nil, nil)
 
-	//win := container.New(layout.NewBorderLayout(tabs, statusBar, nil, nil))
+	btnFwd := widget.NewButton(">>", func() {
+		aldl.TripFWD(str)
+	})
+
+	btnBwd := widget.NewButton("<<", func() {
+		aldl.TripBWD(str)
+	})
+
+	playBar := container.NewBorder(
+		container.New(layout.NewFormLayout(), btnBwd, btnFwd),
+		widget.NewLabelWithData(errMsg),
+		nil,
+		nil)
+
+	statusBar := container.NewBorder(tabs, playBar, nil, nil)
 
 	winlog.Log("Application started")
 

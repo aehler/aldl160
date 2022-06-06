@@ -35,5 +35,5 @@ func toBit(pos, data uint8) string {
 }
 
 func toHex(pos, data uint8) string {
-	return fmt.Sprintf("%d, %X", pos, data)
+	return fmt.Sprintf("%X", data)
 }

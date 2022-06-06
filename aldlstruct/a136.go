@@ -53,10 +53,10 @@ func new136() aldler {
 		flags: map[uint8]string{
 			0:  "", //"MW2",
 			11: "", //"MALFUNCTION FLG1",
-			12: "", //"MALFUNCTION FLG2",
-			13: "", //"MALFUNCTION FLG3",
 			14: "", //"AIR FUEL MODE",
+			12: "", //"MALFUNCTION FLG2",
 			16: "", //"MCU2IO",
+			13: "", //"MALFUNCTION FLG3",
 		},
 		dataStruct: map[uint8]string{
 			1:  "",
@@ -119,7 +119,7 @@ func (a aldl) GetFlags() map[uint8]string {
 }
 
 func (a aldl) TranslateByte(pos, data uint8) string {
-	return a.parseFunctions[pos](pos, data)
+	return fmt.Sprintf("%s [%s]", a.parseFunctions[pos](pos, data), toHex(pos, data))
 }
 
 func getEPROMUID1(pos, data uint8) string {
